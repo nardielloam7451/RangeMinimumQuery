@@ -1,19 +1,27 @@
 package rangeMinQueue;
 
 import java.math.*;
+import java.util.*;
 /*
  *@author nardi 
  */
 
+
 public class RMQueue {
 	private int[][] sparse;
-	private int size;
+	private LinkedList<Integer> tree[];
+	private int[] depth;
+	private int currentDepth;
 	
-	public RMQueue(int n){
+	public RMQueue(){
 		//constructor for the RMQueue
-		size=n;
 		sparse=new int[1000][1000];
-		
+		depth=new int[1001];
+		tree= new LinkedList[1001];
+		for(int i=0;i<1000;++i) {
+			tree[i] = new LinkedList<Integer>();
+		}
+		currentDepth=18;
 	}
 	
 	public void STAlgorithm(int originArray[], int completeSize) {
@@ -22,6 +30,7 @@ public class RMQueue {
 		//initialize the positions for the intervals with length 1
 		for(int i=0;i<completeSize;i++) {
 			sparse[i][0]=originArray[i];
+			System.out.println(originArray[i]);
 		}
 		//compute values from smaller to larger intervals
 		for(int j=1; (1<<j)<=completeSize;j++) {
@@ -52,4 +61,47 @@ public class RMQueue {
 			return sparse[right-(1<<twoPower)+1][twoPower];
 		}
 	}
+	
+	public void dfs(int cur, int prev) {
+		//implements a depth first search to calculate the depths of each node.
+		depth[cur]=depth[prev]+1;
+		sparse[cur][0]=prev;
+		for(int i=0;i<tree[cur].size();i++) {
+			if(tree[cur].get(i)!=prev) {
+				dfs(tree[cur].get(i),cur);
+			}
+		}
+	}
+	
+	public void addEdge(int u, int v) {
+		//adding a new edge to the tree. 
+		tree[u].add(v);
+	}
+	
+	public int lca(int value1, int value2) {
+		//Returns the LCA of two value
+		if(depth[value2]<depth[value1]) {
+			int temp=value1;
+			value1=value2;
+			value2=temp;
+		}
+		int diff= depth[value2]-depth[value1];
+		while(diff>0) {
+				int raise_by = (int)log2(diff);
+				value1=sparse[value1][raise_by];
+				diff-=(1<<raise_by);
+		}
+		if(value1==value2) {
+			return value1;
+		}
+		for(int i=currentDepth;i>=0;--i) {
+			if((sparse[value1][i] != sparse[value2][i])&& (sparse[value1][i]!=-1)) {
+				value1=sparse[value1][i];
+				value2=sparse[value2][i];
+			}
+		}
+		return sparse[value1][0];
+	}
+	
+	
 }
