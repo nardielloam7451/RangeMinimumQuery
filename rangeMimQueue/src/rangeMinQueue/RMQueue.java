@@ -12,7 +12,7 @@ public class RMQueue {
 	public RMQueue(int n){
 		//constructor for the RMQueue
 		size=n;
-		sparse=new int[500][500];
+		sparse=new int[1000][1000];
 		
 	}
 	
